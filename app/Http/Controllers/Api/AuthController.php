@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+// use App\Traits\ApiResponser;
 
 class AuthController extends Controller
 {
+    use ApiResponser;
+
     public function register(Request $request)
     {
 
@@ -27,19 +30,27 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-
         $data = $request->all();
 
-       
-
-        if(!Auth::attempt($data)){
-            return response()->json(['status' => 'erro']);
+        if(!isset($data['email']) || !isset($data['password'])){
+            return response()->json(['status' => 'erro', 'message' => 'Por favor preencha todos os campos']);
         }
 
-        
+        if(!Auth::attempt($data)){
+            return response()->json(['status' => 'erro', 'message' => 'E-mail ou senha incorretos']);
+            //return $this->error('E-mail ou senha incorretos');
+        }
 
+       $userName  = Auth::user()->name;
+       $emailUser = Auth::user()->email;
+
+       $user = ['name' => $userName, 'email' => $emailUser];
+
+        
         return response()->json([
-            'token' => auth()->user()->createToken('token')->plainTextToken
+            'status' => 'Success',
+            'token' => auth()->user()->createToken('token')->plainTextToken,
+            'user' => $user
         ]);
 
     }
