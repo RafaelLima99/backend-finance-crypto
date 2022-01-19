@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-// use App\Traits\ApiResponser;
+use App\Traits\ApiResponser;
 
 class AuthController extends Controller
 {
@@ -16,16 +16,23 @@ class AuthController extends Controller
     {
 
         $data = [
-            'name' => $request->name,
+            'name'     => $request->name,
             'password' => bcrypt($request->password),
-            'email' => $request->email
+            'email'    => $request->email
         ];
+
+        if(!isset($data['name']) || !isset($data['email']) || !isset($data['password'])){
+            return $this->error('Por favor preencha todos os campos', 400);
+        }
+
+
 
         $user = User::create($data);
 
         $token = $user->createToken('token')->plainTextToken;
 
-        return response()->json(['token' => $token]);
+        //return response()->json(['token' => $token]);
+        return $this->success(['token' => $token]);
     }
 
     public function login(Request $request)
@@ -33,25 +40,26 @@ class AuthController extends Controller
         $data = $request->all();
 
         if(!isset($data['email']) || !isset($data['password'])){
-            return response()->json(['status' => 'erro', 'message' => 'Por favor preencha todos os campos']);
+            //return response()->json(['status' => 'erro', 'message' => 'Por favor preencha todos os campos']);
+            return $this->error('Por favor preencha todos os campos', 400);
         }
 
         if(!Auth::attempt($data)){
-            return response()->json(['status' => 'erro', 'message' => 'E-mail ou senha incorretos']);
-            //return $this->error('E-mail ou senha incorretos');
+            //return response()->json(['status' => 'erro', 'message' => 'E-mail ou senha incorretos']);
+            return $this->error('E-mail ou senha incorretos', 400);
         }
 
-       $userName  = Auth::user()->name;
-       $emailUser = Auth::user()->email;
+        $userName  = Auth::user()->name;
+        $emailUser = Auth::user()->email;
 
-       $user = ['name' => $userName, 'email' => $emailUser];
-
+        $user = ['name' => $userName, 'email' => $emailUser];
+        $token = auth()->user()->createToken('token')->plainTextToken;
         
         return response()->json([
             'status' => 'Success',
-            'token' => auth()->user()->createToken('token')->plainTextToken,
+            'token' => $token,
             'user' => $user
-        ]);
+        ], 200);
 
     }
 
@@ -65,4 +73,4 @@ class AuthController extends Controller
             'message' => 'Tokens Revoked'
         ]);
     }
-}
+} 
