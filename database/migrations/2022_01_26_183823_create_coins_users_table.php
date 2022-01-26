@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCoinsUserTable extends Migration
+class CreateCoinsUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateCoinsUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('coins_user', function (Blueprint $table) {
+        Schema::create('coins_users', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('symbol');
@@ -32,6 +32,6 @@ class CreateCoinsUserTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('coins_user');
+        Schema::dropIfExists('coins_users');
     }
 }

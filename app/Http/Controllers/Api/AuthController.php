@@ -25,6 +25,14 @@ class AuthController extends Controller
             return $this->error('Por favor preencha todos os campos', 400);
         }
 
+        $user = User::where('email', '=', $data['email'])->exists();
+
+        if($user){
+            
+            return $this->error('O e-mail já foi cadastrado no sistema', 400);
+           
+        }
+
 
 
         $user = User::create($data);
@@ -46,7 +54,7 @@ class AuthController extends Controller
 
         if(!Auth::attempt($data)){
             //return response()->json(['status' => 'erro', 'message' => 'E-mail ou senha incorretos']);
-            return $this->error('E-mail ou senha incorretos', 400);
+            return $this->error('E-mail ou senha incorretos', 401);
         }
 
         $userName  = Auth::user()->name;
@@ -72,5 +80,21 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Tokens Revoked'
         ]);
+    }
+
+   
+    public function userInformation(){
+
+        if(Auth::user()){
+            $userName  = Auth::user()->name;
+            $emailUser = Auth::user()->email;
+    
+            return $this->success(['name' => $userName, 'email'=> $emailUser]);
+    
+        }
+
+         return $this->error('é preciso fazer login', 401);
+        
+       
     }
 } 
