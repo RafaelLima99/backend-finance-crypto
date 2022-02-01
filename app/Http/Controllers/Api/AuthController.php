@@ -6,41 +6,68 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\ApiResponser;
 
 class AuthController extends Controller
 {
+    use ApiResponser;
+
     public function register(Request $request)
     {
 
         $data = [
-            'name' => $request->name,
+            'name'     => $request->name,
             'password' => bcrypt($request->password),
-            'email' => $request->email
+            'email'    => $request->email
         ];
+
+        if(!isset($data['name']) || !isset($data['email']) || !isset($data['password'])){
+            return $this->error('Por favor preencha todos os campos', 400);
+        }
+
+        $user = User::where('email', '=', $data['email'])->exists();
+
+        if($user){
+            
+            return $this->error('O e-mail já foi cadastrado no sistema', 400);
+           
+        }
+
+
 
         $user = User::create($data);
 
         $token = $user->createToken('token')->plainTextToken;
 
-        return response()->json(['token' => $token]);
+        //return response()->json(['token' => $token]);
+        return $this->success(['token' => $token]);
     }
 
     public function login(Request $request)
     {
-
         $data = $request->all();
 
-       
-
-        if(!Auth::attempt($data)){
-            return response()->json(['status' => 'erro']);
+        if(!isset($data['email']) || !isset($data['password'])){
+            //return response()->json(['status' => 'erro', 'message' => 'Por favor preencha todos os campos']);
+            return $this->error('Por favor preencha todos os campos', 400);
         }
 
-        
+        if(!Auth::attempt($data)){
+            //return response()->json(['status' => 'erro', 'message' => 'E-mail ou senha incorretos']);
+            return $this->error('E-mail ou senha incorretos', 401);
+        }
 
+        $userName  = Auth::user()->name;
+        $emailUser = Auth::user()->email;
+
+        $user = ['name' => $userName, 'email' => $emailUser];
+        $token = auth()->user()->createToken('token')->plainTextToken;
+        
         return response()->json([
-            'token' => auth()->user()->createToken('token')->plainTextToken
-        ]);
+            'status' => 'Success',
+            'token' => $token,
+            'user' => $user
+        ], 200);
 
     }
 
@@ -54,4 +81,20 @@ class AuthController extends Controller
             'message' => 'Tokens Revoked'
         ]);
     }
-}
+
+   
+    public function userInformation(){
+
+        if(Auth::user()){
+            $userName  = Auth::user()->name;
+            $emailUser = Auth::user()->email;
+    
+            return $this->success(['name' => $userName, 'email'=> $emailUser]);
+    
+        }
+
+         return $this->error('é preciso fazer login', 401);
+        
+       
+    }
+} 
