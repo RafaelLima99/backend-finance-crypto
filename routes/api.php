@@ -31,4 +31,5 @@ Route::post('/auth/login', [AuthController:: class, 'login']);
 Route::post('/auth/logout', [AuthController:: class, 'logout'])->middleware('auth:sanctum');
 
 //Coins
+Route::get('coin/coinsuser', [CoinsUserController:: class, 'index'])->middleware('auth:sanctum');
 Route::post('/store/coin', [CoinsUserController:: class, 'store'])->middleware('auth:sanctum');
