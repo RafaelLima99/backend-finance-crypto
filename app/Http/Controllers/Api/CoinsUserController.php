@@ -21,12 +21,10 @@ class CoinsUserController extends Controller
     public function index()
     {
       
-       $coins = CoinsUser::where('user_id', '=' , Auth::user()->id)->get();
-      
-     $teste = $this->calculateCoin($coins);
-    return response()->json([$teste]);
-
-      // return response()->json(['coins' => $coins]);
+        $coins     = CoinsUser::where('user_id', '=' , Auth::user()->id)->get();
+        $coinsData = $this->calculateCoin($coins);
+        
+        return response()->json([$coinsData]);
        
     }
 
@@ -96,29 +94,30 @@ class CoinsUserController extends Controller
         
         $cliente = new Client();
         
-       $coinsData = [];
+        $coinsResult = [];
 
         foreach($coins as $coin) {
             
-            $symbol = $coin->symbol;
+            $symbol   = $coin->symbol;
             $response = $cliente->request('GET', 'https://api.binance.com/api/v3/avgPrice?symbol='.$symbol); 
+
             $currentPrice = json_decode($response->getBody()->getContents())->price; 
-            $reason = $currentPrice / $coin->price_purchase;
-            $grossProfit = $reason * $coin->investment;
-            $netProfit = $grossProfit - $coin->investment;
-            $valuation = ($reason -1 ) * 100;
-            $coinData = ['symbol' => $symbol, 'currentPrice' => $currentPrice,  'grossProfit' => $grossProfit, 'netProfit' => $netProfit, 'valuation' => $valuation]; 
+            $reason       = $currentPrice / $coin->price_purchase;
+            $grossProfit  = $reason * $coin->investment;
+            $netProfit    = $grossProfit - $coin->investment;
+            $valuation    = ($reason -1 ) * 100;
+            $coinResult   = [
+                                'symbol'       => $symbol, 
+                                'currentPrice' => $currentPrice, 
+                                'grossProfit'  => $grossProfit, 
+                                'netProfit'    => $netProfit, 
+                                'valuation'    => $valuation
+                            ]; 
 
-
-            array_push($coinsData, $coinData);
+            array_push($coinsResult, $coinResult);
         }
-        // $response = $cliente->request('GET', 'https://api.binance.com/api/v3/avgPrice?symbol='.$symbol);
-        
-        return $coinsData; 
-        // $coinData [''];
-         
-        // $teste = json_decode($response->getBody()->getContents()); 
-        //dd($teste);
-
+       
+        return $coinsResult; 
+       
     }
 }
