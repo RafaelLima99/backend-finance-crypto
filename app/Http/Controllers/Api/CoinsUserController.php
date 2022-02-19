@@ -64,8 +64,10 @@ class CoinsUserController extends Controller
      */
     public function show($id)
     {
-        //
-    }
+        $coin[] = CoinsUser::findOrFail($id);
+        $coinData = $this->calculateCoin($coin);
+        return $coinData;
+    }                     
 
     /**
      * Update the specified resource in storage.
@@ -76,7 +78,7 @@ class CoinsUserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        
     }
 
     /**
@@ -87,7 +89,14 @@ class CoinsUserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $coin = CoinsUser::findOrFail($id);
+        $result = $coin->delete();
+        if($result){
+
+        }else{
+
+        }
+        
     }
 
     public function calculateCoin($coins){

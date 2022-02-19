@@ -32,4 +32,6 @@ Route::post('/auth/logout', [AuthController:: class, 'logout'])->middleware('aut
 
 //Coins
 Route::get('coin/coinsuser', [CoinsUserController:: class, 'index'])->middleware('auth:sanctum');
-Route::post('/store/coin', [CoinsUserController:: class, 'store'])->middleware('auth:sanctum');
+Route::get('coin/coinuser/{id}', [CoinsUserController:: class, 'show'])->middleware('auth:sanctum');
+Route::post('store/coin', [CoinsUserController:: class, 'store'])->middleware('auth:sanctum');
+Route::delete('delete/coin/{id}', [CoinsUserController:: class, 'destroy'])->middleware('auth:sanctum');
