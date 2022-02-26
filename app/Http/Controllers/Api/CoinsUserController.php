@@ -40,12 +40,14 @@ class CoinsUserController extends Controller
         $symbol         = $request->symbol;
         $investment     = $request->investment;
         $price_purchase = $request->price_purchase;
-    
+        $leverage       = $request->leverage;
+
        CoinsUser::create([
            'user_id' => Auth::user()->id,
            'symbol' => $symbol,
            'investment' => $investment,
-           'price_purchase' => $price_purchase
+           'price_purchase' => $price_purchase,
+           'leverage' => $leverage
        ]);
 
        return response()->json([
@@ -110,10 +112,16 @@ class CoinsUserController extends Controller
             $symbol   = $coin->symbol;
             $response = $cliente->request('GET', 'https://api.binance.com/api/v3/avgPrice?symbol='.$symbol); 
 
+            $investment = $coin->investment;
+            
+            if($coin->leverage){
+                $investment = $investment * $coin->leverage;
+            }
+
             $currentPrice = json_decode($response->getBody()->getContents())->price; 
             $reason       = $currentPrice / $coin->price_purchase;
-            $grossProfit  = $reason * $coin->investment;
-            $netProfit    = $grossProfit - $coin->investment;
+            $grossProfit  = $reason * $investment;
+            $netProfit    = $grossProfit - $investment;
             $valuation    = ($reason -1 ) * 100;
             $coinResult   = [
                                 'symbol'       => $symbol, 

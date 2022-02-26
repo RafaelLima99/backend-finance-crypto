@@ -14,5 +14,6 @@ class CoinsUser extends Model
         'symbol',
         'investment',
         'price_purchase',
+        'leverage'
     ];
 }

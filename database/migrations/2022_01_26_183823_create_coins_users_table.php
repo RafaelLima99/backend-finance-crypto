@@ -19,8 +19,8 @@ class CreateCoinsUsersTable extends Migration
             $table->string('symbol');
             $table->decimal('investment', $precision = 10, $scale = 2);
             $table->decimal('price_purchase', $precision = 10, $scale = 2);
+            $table->integer('leverage');
             $table->timestamps();
-
             $table->foreign('user_id')->references('id')->on('users');
         });
     }
